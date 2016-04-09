@@ -1,4 +1,4 @@
-/**
+package TP1; /**
  * Created by benjaminsaint-sever on 24/03/2016.
  */
 import java.rmi.registry.LocateRegistry;
@@ -15,9 +15,9 @@ public class Client {
         try {
             Registry registry = LocateRegistry.getRegistry(host);
 
-            iBank stub = (iBank) registry.lookup("iBank");
+            iBank stub = (iBank) registry.lookup("TP1.iBank");
 
-            //TEST de toutes les méthodes présentes dans l'interface iBank
+            //TEST de toutes les méthodes présentes dans l'interface TP1.iBank
             int numero_compte1 = stub.creerCompte();
             int numero_compte2 = stub.creerCompte();
             stub.ajouterSurCompte(numero_compte1,10);
@@ -31,7 +31,7 @@ public class Client {
             stub.getValeurCompte(numero_compte2);
 
         } catch (Exception e) {
-            System.err.println("Client exception: " + e.toString());
+            System.err.println("TP1.Client exception: " + e.toString());
             e.printStackTrace();
         }
     }

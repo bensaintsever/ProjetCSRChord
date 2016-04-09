@@ -1,4 +1,4 @@
-/**
+package TP1; /**
  * Created by benjaminsaint-sever on 24/03/2016.
  */
 import java.rmi.registry.Registry;
@@ -19,11 +19,11 @@ public class Server{
             // Bind the remote object's stub in the registry
             Registry registry = LocateRegistry.getRegistry();
 
-            registry.bind("iBank",stub);
+            registry.bind("TP1.iBank",stub);
 
-            System.err.println("Server ready");
+            System.err.println("TP1.Server ready");
         } catch (Exception e) {
-            System.err.println("Server exception: " + e.toString());
+            System.err.println("TP1.Server exception: " + e.toString());
             e.printStackTrace();
         }
     }

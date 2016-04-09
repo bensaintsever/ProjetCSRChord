@@ -1,9 +1,13 @@
 import java.util.Hashtable;
 
 /**
+ * Classe correspondant à un nœud que l'on ajoute dans un réseau de chord.
+ * Ce nœud contient une table de hashage permettant de stocker des valeurs.
+ * Chaque nœud à pour responsabilité un nombre de valeur.
+ *
  * @author Benjamin Saint-Sever
  */
-public class Nœud {
+public class Nœud implements iNœud {
 
     /**
      * Table de hashage permet à un nœud de connaître ses responsabilités sur
@@ -14,73 +18,71 @@ public class Nœud {
     /**
      * Contient l'id du nœud.
      */
-    private int idNœud;
+    private double idNœud;
 
     /**
      * Contient l'adresse du nœud.
      */
     private String adresseNœud;
 
-    /**
-     * Contient l'id du nœud précedent.
-     */
-    private int nœudPrecedent;
+    private Nœud nœudSuivant;
+    private Nœud nœudPrecedent;
+
 
     /**
-     * Contient l'adresse du nœud précedent.
+     * Le nœud conserve la reference de son Serveur Nœud.
      */
-    private String adresseNœudPrecedent;
-    /**
-     * Contient l'id et l'adresse du nœud suivant.
-     */
-    private int nœudSuivant;
+    private ServeurNode refServeur;
+
 
     /**
-     * Contient l'adresse du nœud suivant.
-     */
-    private String adresseNœudSuivant;
-
-    //KEY entre 0 et 65535
-
-    /**
-     * Constructeur de nœud.
+     * Initialisation d'un nœud.
      *
-     * @param id                      identifiant du nœud courant.
-     * @param adresseNœud             adresse du nœud courant.
-     * @param idNœudSuivant           identifiant du nœud suivant.
-     * @param adresseNœudSuivant      adresse du nœud suivant.
-     * @param idNœudPredecesseur      identifiant du nœud precedent.
-     * @param adresseNœudPredecesseur adresse du nœud precedent.
+     * @param ref         reférence avec son serveur de nœud.
+     * @param adresseNœud adresse du nœud courant.
+     * @param idNœud      clée identifiant du nœud.
      */
-    public Nœud(int id, String adresseNœud, int idNœudSuivant, String
-            adresseNœudSuivant, int
-                        idNœudPredecesseur, String
-                        adresseNœudPredecesseur) {
-        //Nœud courant
-        this.idNœud = id;
+    public Nœud(ServeurNode ref, String adresseNœud, double idNœud) {
+        this.refServeur = ref;
         this.adresseNœud = adresseNœud;
-        //Nœud precedent
-        this.nœudPrecedent = idNœudPredecesseur;
-        this.adresseNœudPrecedent = adresseNœudPredecesseur;
-        //Nœud suivant
-        this.nœudSuivant = idNœudSuivant;
-        this.adresseNœudSuivant = adresseNœudSuivant;
-
+        this.idNœud = idNœud;
+        nœudPrecedent = null;
+        nœudSuivant = null;
         hebergement = new Hashtable();
-
     }
 
     /**
-     * Constructeur de nœud.
+     * Initialisation d'un nœud avec ses voisins predecesseur et suivant.
      *
-     * @param id          identifiant du nœud courant.
+     * @param ref         reférence avec son serveur de nœud.
      * @param adresseNœud adresse du nœud courant.
+     * @param idNœud      clée identifiant du nœud.
+     * @param nsuivant    référence vers le nœud suivant.
+     * @param nprecedent  référence du nœud précedent.
      */
-    public Nœud(int id, String adresseNœud) {
+    public Nœud(ServeurNode ref, String adresseNœud, double idNœud, Nœud
+            nsuivant, Nœud
+                        nprecedent) {
+        this.refServeur = ref;
         //Nœud courant
-        this.idNœud = id;
         this.adresseNœud = adresseNœud;
+        //Nœud precedent
+        this.nœudPrecedent = nprecedent;
+        //Nœud suivant
+        this.nœudSuivant = nsuivant;
+
+        this.idNœud = idNœud;
+
         hebergement = new Hashtable();
+    }
+
+    /**
+     * Permet de recuperer la clée identifiant le nœud.
+     *
+     * @return la clée d'identification du nœud.
+     */
+    public double getIdNœud() {
+        return this.idNœud;
     }
 
     /**
@@ -89,12 +91,11 @@ public class Nœud {
      * @param key clée identifiant une valeur hébergé par le nœud.
      * @return la valeur identifié par la clée.
      */
-    public int get(int key) {
+    public int get(double key) {
         if (this.hebergement.containsKey(key))
             return ((Integer) this.hebergement.get(key));
         else
-            return requeteNœudSuivant(key);
-
+            return this.nœudSuivant.get(key); //A optimiser surement
     }
 
     /**
@@ -104,12 +105,50 @@ public class Nœud {
      * @param key   clée d'une valeur.
      * @param value valeur.
      */
-    public void update(int key, int value) {
+    public void insertValue(double key, int value) {
         this.hebergement.put(key, value);
     }
 
-
-    public int requeteNœudSuivant(int key){
-        return
+    /**
+     * Mise à jour de la table de donnée avec la suppression d'une valeur
+     * associé à sa clée.
+     *
+     * @param key   clée d'une valeur.
+     * @param value valeur.
+     */
+    public void deleteValue(double key, int value) {
+        this.hebergement.remove(key);
     }
+
+    public Nœud getNœudSuivant() {
+        return this.nœudSuivant;
+    }
+
+    public Nœud getNœudPrecedent() {
+        return this.nœudPrecedent;
+    }
+
+    public void setNœudSuivant(Nœud n){
+        this.nœudSuivant = n;
+    }
+
+    public void setNœudPrecedent(Nœud n){
+        this.nœudPrecedent = n;
+    }
+
+    /**
+     * Permet de localiser un nœud cible.
+     * @param idNode clée du nœud recherché.
+     * @return le serveur de nœud recherché.
+     */
+    public ServeurNode localiser(double idNode){
+        //SI LA CLEE RECHERCHER EST PLUS GRANDE QUE MOI, JE PASSE AU NOEUD
+        // SUCESSEUR
+        if (this.idNœud < idNode){
+            return this.nœudSuivant.localiser(idNode);
+        }
+        return this.refServeur;
+    }
+
+
 }

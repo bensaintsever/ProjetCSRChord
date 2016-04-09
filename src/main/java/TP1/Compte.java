@@ -1,3 +1,5 @@
+package TP1;
+
 class Compte{
 	
 	private int idCompte;
