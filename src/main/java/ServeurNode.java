@@ -27,6 +27,9 @@ public class ServeurNode {
      */
     private int keyNœudReferant;
 
+    /**
+     * Adresse Ip du serveur référent.
+     */
     private String adressIPServeurReferant;
 
     /**
@@ -59,11 +62,14 @@ public class ServeurNode {
         this.keyNœudReferant = keyNœudReferant;
         this.adressIPServeurReferant = adresseReferant;
         this.c = null;
+        boolean _premier = false;
+        if (this.keyNœudReferant == this.idNœud)
+            _premier = true;
 
 
-        this.nœudCourant = new Nœud(this, ip, keyNœud);
+        this.nœudCourant = new Nœud(this, ip, keyNœud, _premier);
 
-        /** INSERTION NOUVEAU NOEUDS --> A MODIFIER (RECENT)**/
+        /** INSERTION NOUVEAU NOEUDS **/
         //Si il y a deja d'autres nœuds présents dans le réseau.
         if (keyNœudReferant != this.idNœud) {
 
@@ -73,9 +79,13 @@ public class ServeurNode {
             //Le nœud va chercher sa place dans le réseau.
             ServeurNode nœud_sucesseur = null;
             try {
-                System.out.println("ServeurNode "+this.idNœud+" : RequeteNouvel"
-                +"Arrivant avant");
+                System.out.println("ServeurNode " + this.idNœud + " : " +
+                        "RequeteNouvel"
+                        + "Arrivant avant");
+
+                /************* PROBLEME ICI **************/
                 nœud_sucesseur = c.requeteNouvelArrivant(this.idNœud);
+                /*****************************************/
                 System.out.println("ServeurNode : RequeteNouvel Arrivant " +
                         "apres");
             } catch (RemoteException e) {
@@ -83,11 +93,11 @@ public class ServeurNode {
                 e.printStackTrace();
             }
 
-            System.out.println(nœud_sucesseur.getMinkey());
 
-            this.nœudCourant.setNœudSuivant(nœud_sucesseur.nœudCourant);
+            this.nœudCourant.setNœudSuivant(nœud_sucesseur.getNœudCourant());
             this.nœudCourant.setNœudPrecedent(nœud_sucesseur.nœudCourant
                     .getNœudPrecedent());
+
 
             //On notifie le successeur pour recuperer ses responsabilités
             ArrayList<Integer> listeCléeRecupere = null;
@@ -115,7 +125,7 @@ public class ServeurNode {
 
 
     /**
-     * Premiere communication du nœud avec un autre nœud.
+     * Première communication du nœud avec un autre nœud.
      */
     public void insertionNœudReseauDistant() {
         this.c = new ClientNode();
@@ -125,12 +135,12 @@ public class ServeurNode {
     }
 
 
+    /**
+     * Permet de gerer l'initialisation du mode serveur d'un nœud.
+     */
     public void ModeServeur() {
         try {
 
-            //Creation d'un nœud
-            this.nœudCourant = new Nœud(this, this.adressIPServeur, this
-                    .idNœud);
             String sIdNœud = String.valueOf(this.idNœud);
 
             iNœud stub = (iNœud) UnicastRemoteObject.exportObject(this
@@ -151,13 +161,31 @@ public class ServeurNode {
         }
     }
 
+    /**
+     * Permet de récupérer la clée maximale possible.
+     *
+     * @return la clée maximale possible.
+     */
     public int getMaxkey() {
         return MAXKEY;
     }
 
+    /**
+     * Permet de récupérer la clée minimale possible.
+     *
+     * @return la clée minimale possible.
+     */
     public int getMinkey() {
         return MINKEY;
     }
 
+    /**
+     * Permet de récupérer le nœud utilisé par le serveur dédié.
+     *
+     * @return le nœud utilisé par le serveur dédié.
+     */
+    public Nœud getNœudCourant() {
+        return this.nœudCourant;
+    }
 
 }

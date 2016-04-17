@@ -1,0 +1,27 @@
+Le point d'entrée du programme est ClientAdmin, son main comprend un partie
+de test qui ne sont malheuresement pas couvert à 100 % fonctionnel.
+En effet, la communication RMI entre Nœud ne semble pas être opérationnelle
+(du moins en partie).
+Je n'ai pas réussi à localiser précisement la cause du problème, ce n'est pas
+ faute d'avoir cherché. La structure permettant de réaliser un réseau de
+ chord (v1.0) est bien présente, ne restant plus qu'a inclure des tests validés.
+ Cette version ne comprend pas la finger table.
+
+ Ce qui fonctionne :
+    * La classe Admin communique correctement avec le serveur de Nœud crée,
+    qui génére lui même un nœud.
+    * Insertion des key, valeurs dans un nœud.
+
+
+ L'interconnexion entre nœud etant fondamentale pour poursuivre les tests, je
+  n'ai pu réaliser plus de test montrant la bonne implentation du réseau chord.
+
+
+
+Présentation de la structure :
+
+Un nœud est dissocié de sa partie réseau grâce à la classe ServeurNode, cette
+ derniere se sert de ClientNode pour communiquer entre nœuds.
+
+
+ Présence d'un makefile avec make test et make clean.

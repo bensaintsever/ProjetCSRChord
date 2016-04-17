@@ -11,6 +11,7 @@ import java.util.logging.Logger;
  * @author Benjamin Saint-Sever
  */
 public class Nœud implements iNœud {
+
     private final static Logger log = Logger.getLogger(Nœud.class.getName
             ());
 
@@ -40,15 +41,6 @@ public class Nœud implements iNœud {
     private ServeurNode refServeur;
 
 
-    public Nœud() {
-        this.refServeur = null;
-        this.adresseNœud = null;
-        this.idNœud = 0;
-        nœudPrecedent = null;
-        nœudSuivant = null;
-        hebergement = null;
-    }
-
     /**
      * Initialisation d'un nœud.
      *
@@ -56,39 +48,21 @@ public class Nœud implements iNœud {
      * @param adresseNœud adresse du nœud courant.
      * @param idNœud      clée identifiant du nœud.
      */
-    public Nœud(ServeurNode ref, String adresseNœud, int idNœud) {
+    public Nœud(ServeurNode ref, String adresseNœud, int idNœud, boolean
+            premier) {
         this.refServeur = ref;
         this.adresseNœud = adresseNœud;
         this.idNœud = idNœud;
-        nœudPrecedent = null;
-        nœudSuivant = null;
+        if (!premier) {
+            nœudPrecedent = null;
+            nœudSuivant = null;
+        }else{
+            nœudPrecedent = this;
+            nœudSuivant = this;
+        }
         hebergement = new Hashtable();
     }
 
-    /**
-     * Initialisation d'un nœud avec ses voisins predecesseur et suivant.
-     *
-     * @param ref         reférence avec son serveur de nœud.
-     * @param adresseNœud adresse du nœud courant.
-     * @param idNœud      clée identifiant du nœud.
-     * @param nsuivant    référence vers le nœud suivant.
-     * @param nprecedent  référence du nœud précedent.
-     */
-    public Nœud(ServeurNode ref, String adresseNœud, int idNœud, Nœud
-            nsuivant, Nœud
-                        nprecedent) {
-        this.refServeur = ref;
-        //Nœud courant
-        this.adresseNœud = adresseNœud;
-        //Nœud precedent
-        this.nœudPrecedent = nprecedent;
-        //Nœud suivant
-        this.nœudSuivant = nsuivant;
-
-        this.idNœud = idNœud;
-
-        hebergement = new Hashtable();
-    }
 
     /**
      * Permet de recuperer la clée identifiant le nœud.
@@ -103,15 +77,14 @@ public class Nœud implements iNœud {
      * Récupération de la valeur hébergé par le nœud, correspondant à la clée.
      *
      * @param key clée identifiant une valeur hébergé par le nœud.
-     * @return la valeur identifié par la clée.
+     * @return la valeur identifié par la clée ou -1 si le nœud ne possède
+     * pas la valeur.
      */
     public int get(int key) {
         if (this.hebergement.containsKey(key))
             return ((Integer) this.hebergement.get(key));
         else
             return -1;
-        //else
-        //  return this.nœudSuivant.get(key); //A optimiser surement
     }
 
     /**
@@ -161,20 +134,21 @@ public class Nœud implements iNœud {
      */
     public ServeurNode localiser(int idNode) {
 
-        //Si je possede la valeur dans ma table alors je renvoi ma signature.
-        if (this.get(idNode) == idNode) {
-            System.out.println("Nœud : J'ai trouvé le nœud responsable");
-            return (ServeurNode)this.refServeur;
-        }
 
         //SI LA CLEE RECHERCHER EST PLUS GRANDE QUE MOI, JE PASSE AU NOEUD
         // SUCESSEUR
         if (this.idNœud < idNode) {
+            if(this.nœudPrecedent == this.nœudSuivant)
+                return getRefServeur(); //PROBLEME ICI
+
             return this.nœudSuivant.localiser(idNode);
         }
-
-
-
+        //Si je possede la valeur dans ma table alors je renvoi ma signature.
+        if (this.get(idNode) == idNode) {
+            System.out.println("Nœud " + this.idNœud + ": J'ai trouvé le nœud" +
+                    " responsable");
+            return this.refServeur;
+        }
 
 
         return null;
@@ -233,8 +207,11 @@ public class Nœud implements iNœud {
         return listeValeur;
     }
 
-    public void methodeBidonTest() {
-        System.out.println("Méthode bidon : OK");
+    /**
+     * Accesseur pour recuperer la référence du serveur de nœud.
+     * @return la référence du serveur de nœud.
+     */
+    public ServeurNode getRefServeur(){
+        return this.refServeur;
     }
-
 }

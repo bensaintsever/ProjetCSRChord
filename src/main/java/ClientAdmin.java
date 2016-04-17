@@ -77,7 +77,7 @@ public class ClientAdmin {
 
             //On creer un ou plusieurs serveur(s) sur une même machine.
             client.ajouterServeurNode(adresseIPServeur, 0);
-            //client.ajouterServeurNode(adresseIPServeur, 1);
+
 
         } catch (UnknownHostException e) {
             System.out.println("Creation serveur : adresse ip non trouvé");
@@ -118,21 +118,17 @@ public class ClientAdmin {
          * client.stub.insertValue();
          * client.stub...
          */
-        try {
-            client.stub.methodeBidonTest();
+        /*try {
+
             //ServeurNode n = client.stub.localiser(0);
             //System.out.println("Valeur max du serveur node :" + n.getMaxkey
             // ());
         } catch (RemoteException e) {
             System.err.println("ClientAdmin exception: " + e.toString());
             e.printStackTrace();
-        }
+        }*/
 
-        /**
-         * Lorsque l'on rajoute un nœud dans un réseau de chord existant :
-         *
-         *
-         */
+
 
         try {
             client.stub.insertValue(0, 0);
@@ -144,6 +140,11 @@ public class ClientAdmin {
             e.printStackTrace();
         }
 
+        /**
+         * Lorsque l'on rajoute un nœud dans un réseau de chord existant :
+         *
+         *
+         */
         client.ajouterServeurNode("127.0.0.2", 1);
         try {
             client.stub.insertValue(1, 1);
@@ -226,11 +227,6 @@ public class ClientAdmin {
     }
 
 
-    /**
-     * A definir pour les tests.
-     */
-    public void generateKey() {
 
-    }
 
 }

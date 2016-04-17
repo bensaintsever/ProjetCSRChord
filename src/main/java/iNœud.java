@@ -7,7 +7,6 @@ import java.util.ArrayList;
  */
 public interface iNœud extends Remote {
 
-    public void methodeBidonTest() throws RemoteException;
 
     public int get(int key) throws RemoteException;
 
