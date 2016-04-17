@@ -1,0 +1,10 @@
+J'ai précedement contruit (localement uniquement) le système d'ajout d'un nœud
+ en notifiant au nœud
+sucesseur son arrivé avec la procedure que cela implique (a savoir
+redistribuer les responsabilités sur les nœuds/clées).
+
+
+Ce qu'il reste à faire :
+Etablir la communication RMI entre les nœuds (voir localiser et notifier,
+afin de leur implémenter cette fonctionnalité.)
+--> A priori c'est en bonne partie fait, faut voir au niveau du client.

@@ -1,16 +1,30 @@
 import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 /**
  * @author Benjamin Saint-Sever.
  */
 public interface iNœud extends Remote {
-    int get(double key);
 
-    void deleteValue(double key, int value);
+    public void methodeBidonTest() throws RemoteException;
 
-    void insertValue(double key, int value);
+    public int get(int key) throws RemoteException;
 
-    ServeurNode localiser(double key);
+
+    public void deleteValue(int key) throws RemoteException;
+
+
+    public void insertValue(int key, int value) throws RemoteException;
+
+
+    public ServeurNode localiser(int key) throws RemoteException;
+
+
+    public ArrayList<Integer> notifyInsertionSucesseur(Nœud nœudPredecesseur)
+            throws RemoteException;
+
+
 }
 
 

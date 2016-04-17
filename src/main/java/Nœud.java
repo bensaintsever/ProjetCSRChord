@@ -1,4 +1,7 @@
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.logging.Logger;
+
 
 /**
  * Classe correspondant à un nœud que l'on ajoute dans un réseau de chord.
@@ -8,6 +11,8 @@ import java.util.Hashtable;
  * @author Benjamin Saint-Sever
  */
 public class Nœud implements iNœud {
+    private final static Logger log = Logger.getLogger(Nœud.class.getName
+            ());
 
     /**
      * Table de hashage permet à un nœud de connaître ses responsabilités sur
@@ -18,7 +23,7 @@ public class Nœud implements iNœud {
     /**
      * Contient l'id du nœud.
      */
-    private double idNœud;
+    private int idNœud;
 
     /**
      * Contient l'adresse du nœud.
@@ -35,6 +40,15 @@ public class Nœud implements iNœud {
     private ServeurNode refServeur;
 
 
+    public Nœud() {
+        this.refServeur = null;
+        this.adresseNœud = null;
+        this.idNœud = 0;
+        nœudPrecedent = null;
+        nœudSuivant = null;
+        hebergement = null;
+    }
+
     /**
      * Initialisation d'un nœud.
      *
@@ -42,7 +56,7 @@ public class Nœud implements iNœud {
      * @param adresseNœud adresse du nœud courant.
      * @param idNœud      clée identifiant du nœud.
      */
-    public Nœud(ServeurNode ref, String adresseNœud, double idNœud) {
+    public Nœud(ServeurNode ref, String adresseNœud, int idNœud) {
         this.refServeur = ref;
         this.adresseNœud = adresseNœud;
         this.idNœud = idNœud;
@@ -60,7 +74,7 @@ public class Nœud implements iNœud {
      * @param nsuivant    référence vers le nœud suivant.
      * @param nprecedent  référence du nœud précedent.
      */
-    public Nœud(ServeurNode ref, String adresseNœud, double idNœud, Nœud
+    public Nœud(ServeurNode ref, String adresseNœud, int idNœud, Nœud
             nsuivant, Nœud
                         nprecedent) {
         this.refServeur = ref;
@@ -81,7 +95,7 @@ public class Nœud implements iNœud {
      *
      * @return la clée d'identification du nœud.
      */
-    public double getIdNœud() {
+    public int getIdNœud() {
         return this.idNœud;
     }
 
@@ -91,11 +105,13 @@ public class Nœud implements iNœud {
      * @param key clée identifiant une valeur hébergé par le nœud.
      * @return la valeur identifié par la clée.
      */
-    public int get(double key) {
+    public int get(int key) {
         if (this.hebergement.containsKey(key))
             return ((Integer) this.hebergement.get(key));
         else
-            return this.nœudSuivant.get(key); //A optimiser surement
+            return -1;
+        //else
+        //  return this.nœudSuivant.get(key); //A optimiser surement
     }
 
     /**
@@ -105,18 +121,19 @@ public class Nœud implements iNœud {
      * @param key   clée d'une valeur.
      * @param value valeur.
      */
-    public void insertValue(double key, int value) {
+    public void insertValue(int key, int value) {
         this.hebergement.put(key, value);
+        log.info("Insertion de la valeur : " + value + ", voici mon id :" +
+                this.getIdNœud());
     }
 
     /**
      * Mise à jour de la table de donnée avec la suppression d'une valeur
      * associé à sa clée.
      *
-     * @param key   clée d'une valeur.
-     * @param value valeur.
+     * @param key clée d'une valeur.
      */
-    public void deleteValue(double key, int value) {
+    public void deleteValue(int key) {
         this.hebergement.remove(key);
     }
 
@@ -124,31 +141,100 @@ public class Nœud implements iNœud {
         return this.nœudSuivant;
     }
 
+    public void setNœudSuivant(Nœud n) {
+        this.nœudSuivant = n;
+    }
+
     public Nœud getNœudPrecedent() {
         return this.nœudPrecedent;
     }
 
-    public void setNœudSuivant(Nœud n){
-        this.nœudSuivant = n;
-    }
-
-    public void setNœudPrecedent(Nœud n){
+    public void setNœudPrecedent(Nœud n) {
         this.nœudPrecedent = n;
     }
 
     /**
      * Permet de localiser un nœud cible.
+     *
      * @param idNode clée du nœud recherché.
      * @return le serveur de nœud recherché.
      */
-    public ServeurNode localiser(double idNode){
+    public ServeurNode localiser(int idNode) {
+
+        //Si je possede la valeur dans ma table alors je renvoi ma signature.
+        if (this.get(idNode) == idNode) {
+            System.out.println("Nœud : J'ai trouvé le nœud responsable");
+            return (ServeurNode)this.refServeur;
+        }
+
         //SI LA CLEE RECHERCHER EST PLUS GRANDE QUE MOI, JE PASSE AU NOEUD
         // SUCESSEUR
-        if (this.idNœud < idNode){
+        if (this.idNœud < idNode) {
             return this.nœudSuivant.localiser(idNode);
         }
-        return this.refServeur;
+
+
+
+
+
+        return null;
     }
 
+
+    /**
+     * Méthode permettant de notifier à un nœud qu'il devient le sucesseur
+     * d'un nouveau nœud, il doit donc modifier son nœud predecesseur en
+     * conséquence (ajout du nouveau nœud).
+     *
+     * @param nœudPredecesseur
+     */
+    public ArrayList<Integer> notifyInsertionSucesseur(Nœud nœudPredecesseur) {
+        this.nœudPrecedent = nœudPredecesseur;
+        int idNœudPredecesseur = nœudPredecesseur.getIdNœud();
+        ArrayList<Integer> listeValeur = null;
+
+
+
+        /*
+        Si P > C
+            K>P ou k<= c
+        Sinon
+            P < k <= C
+        */
+
+
+        if (idNœudPredecesseur > this.idNœud) {
+            //Clée > P
+
+            for (int i = this.getIdNœud(); i < this.refServeur.getMaxkey();
+                 ++i) {
+                listeValeur.add(this.get(i));
+                deleteValue(i);
+            }
+            //OU
+            //Clée <= nœud courant
+            for (int i = this.refServeur.getMinkey(); i < this.idNœud;
+                 ++i) {
+                listeValeur.add(this.get(i));
+                deleteValue(i);
+            }
+
+
+        } else {
+            //P < Clée <= nœud courant
+
+            for (int i = idNœudPredecesseur; i <= this.idNœud; i++) {
+                listeValeur.add(this.get(i));
+                deleteValue(i);
+            }
+
+
+        }
+        return listeValeur;
+    }
+
+    public void methodeBidonTest() {
+        System.out.println("Méthode bidon : OK");
+    }
 
 }

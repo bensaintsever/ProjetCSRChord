@@ -1,5 +1,7 @@
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
 
 /**
  * Classe permettant à un nœud d'interragir avec ses nœuds voisins.
@@ -7,9 +9,9 @@ import java.rmi.registry.Registry;
  * @author Benjamin Saint-Sever
  */
 public class ClientNode {
-    private static final double MAXKEY = 65535;
-    private static final double MINKEY = 0;
-    private double idNœud;
+    private static final int MAXKEY = 65535;
+    private static final int MINKEY = 0;
+    private int idNœud;
     private String adresseIP;
     private Registry registry;
     private iNœud stub;
@@ -23,17 +25,25 @@ public class ClientNode {
 
 
     /**
-     * Méthode à utilisé lors de l'insertion d'un nouveau nœud, on cherche à
+     * Méthode à utiliser lors de l'insertion d'un nouveau nœud, on cherche à
      * communiquer le nœud response de la clée, on commence par interroger un
      * nœud qui transmettra à ses voisins jusqu'a trouver le nœud responsable.
      * Ce dernier contactera notre nœud pour lui affecter les responsabilités
      * des données lié à la clée et devient le successeur de notre nœud.
      * Le predecesseur du nœud interrogé devient notre predecesseur, et on
      * devient predecesseur du nœud contacté.
+     *
      * @param keyNode
      */
-    public void requeteNouvelArrivant(double keyNode){
+    public ServeurNode requeteNouvelArrivant(int keyNode) throws
+            RemoteException {
+        return stub.localiser(keyNode);
+    }
 
+
+    public ArrayList<Integer> redistributionDesResponsabilités(Nœud nœud)
+            throws RemoteException {
+        return stub.notifyInsertionSucesseur(nœud);
     }
 
 
@@ -42,7 +52,7 @@ public class ClientNode {
      *
      * @return identifiant d'un nœud serveur, renvoi 0 si pas de serveur actif.
      */
-    public double getIdNœud() {
+    public int getIdNœud() {
         return this.idNœud;
     }
 
@@ -67,10 +77,9 @@ public class ClientNode {
      *
      * @param idNœud clée identifiant le nœud que l'on souhaite intéroger.
      */
-    public void getInfoServeurNœud(double idNœud) {
+    public void getInfoServeurNœud(int idNœud) {
         try {
-            this.stub = (iNœud) registry.lookup(String.valueOf(this.getIdNœud
-                    ()));
+            this.stub = (iNœud) registry.lookup(String.valueOf(idNœud));
         } catch (Exception e) {
             System.out.println("Recupération des informations serveur : " +
                     "echec");
